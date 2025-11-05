@@ -543,10 +543,17 @@
 
     <script>
         const formulas = [
+            { name: "2πr²", category: "cylinder_surface", emoji: "⭕" },
+            { name: "2πrh", category: "cylinder_surface", emoji: "🌀" },
+            { name: "2πr² + 2πrh", category: "cylinder_surface", emoji: "🔵" },
             { name: "πr²h", category: "cylinder_volume", emoji: "💧" },
+            { name: "(2×กว้าง×ยาว) + (2×กว้าง×สูง) + (2×ยาว×สูง)", category: "prism_surface", emoji: "📦" },
+            { name: "กว้าง × ยาว × สูง", category: "prism_volume", emoji: "🧊" },
             { name: "พื้นที่ฐาน × สูง", category: "prism_volume", emoji: "📐" },
-            { name: "2(พื้นที่ฐาน) + (ความยาวเส้นรอบฐาน × สูง )",category: "prism_surface", emoji: "🎁" },
-            { name: "2πr² + 2πrh", category: "cylinder_surface", emoji: "🥫" },
+            { name: "2(พื้นที่ฐาน) + พื้นที่ผิวข้าง",category: "prism_surface", emoji: "🎁" },
+            { name: "2πr(r + h)", category: "cylinder_surface", emoji: "🥫" },
+            { name: "ฐาน × สูง",category: "prism_volume", emoji: "⬆️" },
+            { name: "ความยาวเส้นรอบฐาน × สูง",category: "prism_surface", emoji: "🔲" }
         ];
 
         let score = 0;
