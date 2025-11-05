@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมพื้นที่ผิวและปริมาตร</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .instructions {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-container {
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 50px;
+            height: 18px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .formulas-pool {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 15px;
+            min-height: 350px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .pool-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .category {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 15px;
+            min-height: 170px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .category.drag-over {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .category.drag-over::before {
+            opacity: 1;
+        }
+
+        .cylinder-surface {
+            border-color: #3b82f6;
+        }
+
+        .cylinder-surface::before {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+        }
+
+        .cylinder-volume {
+            border-color: #10b981;
+        }
+
+        .cylinder-volume::before {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .prism-surface {
+            border-color: #ec4899;
+        }
+
+        .prism-surface::before {
+            background: linear-gradient(90deg, #ec4899, #db2777);
+        }
+
+        .prism-volume {
+            border-color: #f59e0b;
+        }
+
+        .prism-volume::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .category-title {
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .cylinder-surface .category-title {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        .cylinder-volume .category-title {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .prism-surface .category-title {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #9f1239;
+        }
+
+        .prism-volume .category-title {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .category-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .formula-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 5px;
+            cursor: grab;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .formula-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .formula-item.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg) scale(0.95);
+            cursor: grabbing;
+        }
+
+        .formula-item.placed {
+            cursor: default;
+            opacity: 0.95;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+        }
+
+        .formula-emoji {
+            font-size: 1.8rem;
+            display: block;
+            text-align: center;
+            margin-bottom: 6px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .formula-name {
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .formula-desc {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            padding: 25px 45px;
+            border-radius: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+            border: 3px solid #10b981;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 3px solid #ef4444;
+        }
+
+        .feedback.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .success-content {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 550px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: rotate 1s ease-in-out;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .success-text {
+            font-size: 1.3rem;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .play-again-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .play-again-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1200px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .categories {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                gap: 20px;
+            }
+
+            .game-container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="game-title">🎯 เกมจำแนกสูตรคณิตศาสตร์</h1>
+            <p class="instructions">ลากสูตรแต่ละข้อไปวางในหมวดหมู่ที่ถูกต้อง</p>
+            
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-label">คะแนน</div>
+                    <div class="stat-value" id="scoreDisplay">0 / 12</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">ความคืบหน้า</div>
+                    <div class="stat-value" id="progressPercent">0%</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="formulas-pool">
+                <div class="pool-title">
+                    <span>📐</span>
+                    <span>สูตรที่ต้องจำแนก</span>
+                </div>
+                <div id="formulasContainer"></div>
+            </div>
+
+            <div class="categories">
+                <div class="category cylinder-surface" data-category="cylinder_surface">
+                    <div class="category-title">
+                        <span>🔵</span>
+                        <span>พื้นที่ผิวทรงกระบอก</span>
+                    </div>
+                    <div class="category-items" id="cylinderSurfaceContainer"></div>
+                </div>
+
+                <div class="category cylinder-volume" data-category="cylinder_volume">
+                    <div class="category-title">
+                        <span>🔵</span>
+                        <span>ปริมาตรทรงกระบอก</span>
+                    </div>
+                    <div class="category-items" id="cylinderVolumeContainer"></div>
+                </div>
+
+                <div class="category prism-surface" data-category="prism_surface">
+                    <div class="category-title">
+                        <span>📦</span>
+                        <span>พื้นที่ผิวปริซึม</span>
+                    </div>
+                    <div class="category-items" id="prismSurfaceContainer"></div>
+                </div>
+
+                <div class="category prism-volume" data-category="prism_volume">
+                    <div class="category-title">
+                        <span>📦</span>
+                        <span>ปริมาตรปริซึม</span>
+                    </div>
+                    <div class="category-items" id="prismVolumeContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="success-screen" id="successScreen">
+        <div class="success-content">
+            <div class="success-emoji">🎉</div>
+            <div class="success-title">ยินดีด้วย!</div>
+            <div class="success-text">คุณจำแนกสูตรได้ถูกต้องครบทั้งหมดแล้ว!</div>
+            <button class="play-again-btn" onclick="resetGame()">🔄 เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        const formulas = [
+            { name: "πr²h", category: "cylinder_volume", emoji: "💧" },
+            { name: "พื้นที่ฐาน × สูง", category: "prism_volume", emoji: "📐" },
+            { name: "2(พื้นที่ฐาน) + (ความยาวเส้นรอบฐาน × สูง )",category: "prism_surface", emoji: "🎁" },
+            { name: "2πr² + 2πrh", category: "cylinder_surface", emoji: "🥫" },
+        ];
+
+        let score = 0;
+        let totalFormulas = formulas.length;
+        let placedFormulas = 0;
+
+        function initializeGame() {
+            const formulasContainer = document.getElementById('formulasContainer');
+            formulasContainer.innerHTML = '';
+            
+            const shuffledFormulas = [...formulas].sort(() => Math.random() - 0.5);
+            
+            shuffledFormulas.forEach((formula, index) => {
+                const formulaElement = createFormulaElement(formula, index);
+                formulasContainer.appendChild(formulaElement);
+            });
+
+            document.getElementById('cylinderSurfaceContainer').innerHTML = '';
+            document.getElementById('cylinderVolumeContainer').innerHTML = '';
+            document.getElementById('prismSurfaceContainer').innerHTML = '';
+            document.getElementById('prismVolumeContainer').innerHTML = '';
+
+            updateScore();
+            updateProgress();
+        }
+
+        function createFormulaElement(formula, index) {
+            const div = document.createElement('div');
+            div.className = 'formula-item';
+            div.draggable = true;
+            div.dataset.category = formula.category;
+            div.dataset.index = index;
+            div.innerHTML = `
+                <div class="formula-emoji">${formula.emoji}</div>
+                <div class="formula-name">${formula.name}</div>
+            
+            `;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            return div;
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.category);
+            e.dataTransfer.setData('application/x-formula-index', e.target.dataset.index);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        document.querySelectorAll('.category').forEach(category => {
+            category.addEventListener('dragover', handleDragOver);
+            category.addEventListener('drop', handleDrop);
+            category.addEventListener('dragenter', handleDragEnter);
+            category.addEventListener('dragleave', handleDragLeave);
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const formulaCategory = e.dataTransfer.getData('text/plain');
+            const dropCategory = e.currentTarget.dataset.category;
+            const formulaIndex = e.dataTransfer.getData('application/x-formula-index');
+            
+            const draggedElement = document.querySelector(`[data-index="${formulaIndex}"]`);
+            
+            if (formulaCategory === dropCategory) {
+                showFeedback('ถูกต้อง! เยี่ยมมาก! 🎉', 'correct');
+                score++;
+                placedFormulas++;
+                
+                const categoryContainer = e.currentTarget.querySelector('.category-items');
+                draggedElement.classList.add('placed');
+                draggedElement.style.cursor = 'default';
+                draggedElement.draggable = false;
+                categoryContainer.appendChild(draggedElement);
+                
+            } else {
+                showFeedback('ลองใหม่นะ! 🤔', 'incorrect');
+                
+                draggedElement.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    draggedElement.style.transform = '';
+                }, 200);
+            }
+
+            updateScore();
+            updateProgress();
+            
+            if (placedFormulas === totalFormulas) {
+                setTimeout(showSuccess, 1000);
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.classList.add('show');
+            
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 1500);
+        }
+
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = `${score} / ${totalFormulas}`;
+        }
+
+        function updateProgress() {
+            const progress = (placedFormulas / totalFormulas) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(progress)}%`;
+        }
+
+        function showSuccess() {
+            document.getElementById('successScreen').style.display = 'flex';
+        }
+
+        function resetGame() {
+            score = 0;
+            placedFormulas = 0;
+            document.getElementById('successScreen').style.display = 'none';
+            initializeGame();
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>

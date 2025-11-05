@@ -1,0 +1,106 @@
+/* Header Banner */
+.header-banner {
+  padding: 128px 16px;
+  text-align: center;
+  background: linear-gradient(120deg, #FFA500, #FFB84D);
+  color: white;
+}
+
+/* Typography Animations */
+.animate-title {
+  animation: fadeInDown 1s ease-out;
+}
+
+.animate-subtitle {
+  animation: fadeInUp 1.2s ease-out;
+}
+
+.animate-quote {
+  animation: fadeIn 2s ease-in;
+}
+
+/* Buttons */
+.w3-button {
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+.w3-button:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Section Titles */
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #FF8C00;
+}
+
+/* Document Cards */
+.doc-card, .doc3-card {
+  background: #fff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.doc-card:hover, .doc3-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.doc-card i, .doc3-card i {
+  color: #FF8C00;
+  margin-bottom: 10px;
+}
+
+/* Video Section */
+.video-thumb {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Quote Section */
+.quote-section {
+  background: linear-gradient(120deg, #FFA500, #FFCC80);
+  color: white;
+  font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive Cards for Documents (Grade 3) */
+@media screen and (max-width: 992px) {
+  .w3-third {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
