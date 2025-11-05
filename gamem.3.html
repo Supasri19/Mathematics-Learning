@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="th">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เกมคณิตศาสตร์ 3D</title>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมคณิตศาสตร์ 3D</title>
+    <script src="/_sdk/element_sdk.js"></script>
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
         body {
             box-sizing: border-box;
         }
@@ -97,10 +97,9 @@
             pointer-events: none;
         }
     </style>
-  <style>@view-transition { navigation: auto; }</style>
- </head>
- <body class="min-h-full bg-gradient-to-br from-purple-100 to-blue-100">
-  <script>
+</head>
+<body class="min-h-full bg-gradient-to-br from-purple-100 to-blue-100">
+    <script>
         // Configuration
         const defaultConfig = {
             game_title: "เกมคณิตศาสตร์ 3D",
@@ -169,8 +168,8 @@
             let dimensions, answer, questionText;
             
             if (shapeName === 'pyramid') {
-                const base = Math.floor(Math.random() * 8) + 3; // 3-10
-                const height = Math.floor(Math.random() * 8) + 3; // 3-10
+                const base = Math.floor(Math.random() * 8) + 3;
+                const height = Math.floor(Math.random() * 8) + 3;
                 const l = Math.sqrt(height * height + (base/2) * (base/2));
                 
                 dimensions = { base, height, l };
@@ -183,8 +182,8 @@
                     questionText = `พีระมิดฐานสี่เหลี่ยมจัตุรัส ฐาน ${base} ซม. สูง ${height} ซม. จงหาปริมาตร`;
                 }
             } else if (shapeName === 'cone') {
-                const radius = Math.floor(Math.random() * 6) + 2; // 2-7
-                const height = Math.floor(Math.random() * 8) + 3; // 3-10
+                const radius = Math.floor(Math.random() * 6) + 2;
+                const height = Math.floor(Math.random() * 8) + 3;
                 const l = Math.sqrt(height * height + radius * radius);
                 
                 dimensions = { radius, height, l };
@@ -196,8 +195,8 @@
                     answer = Math.round(shape.volume(radius, height) * 100) / 100;
                     questionText = `กรวยรัศมี ${radius} ซม. สูง ${height} ซม. จงหาปริมาตร`;
                 }
-            } else { // sphere
-                const radius = Math.floor(Math.random() * 6) + 2; // 2-7
+            } else {
+                const radius = Math.floor(Math.random() * 6) + 2;
                 
                 dimensions = { radius };
                 
@@ -258,7 +257,6 @@
                 <div id="result-message" class="mt-4 text-center"></div>
             `;
             
-            // Add enter key support
             document.getElementById('answer-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     checkAnswer();
@@ -287,52 +285,52 @@
                 return;
             }
             
-            // Show loading state
+            submitBtn.disabled = true;
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'กำลังตรวจ...';
             
             const userAnswer = parseFloat(answerInput.value);
             const isCorrect = Math.abs(userAnswer - currentQuestion.answer) < 0.1;
             
-            // Save to data SDK
-            const result = await window.dataSdk.create({
-                id: currentQuestion.id,
-                shape: currentQuestion.shape,
-                question_type: currentQuestion.questionType,
-                user_answer: userAnswer,
-                correct_answer: currentQuestion.answer,
-                is_correct: isCorrect,
-                timestamp: new Date().toISOString()
-            });
+            gameStats.total++;
+            if (isCorrect) gameStats.correct++;
             
-            if (result.isOk) {
-                gameStats.total++;
-                if (isCorrect) gameStats.correct++;
-                
-                // Show result
-                if (isCorrect) {
-                    resultMessage.innerHTML = `
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
-                            <p class="font-semibold">🎉 ถูกต้อง!</p>
-                            <p>คำตอบที่ถูกต้อง: ${currentQuestion.answer}</p>
-                        </div>
-                    `;
-                } else {
-                    resultMessage.innerHTML = `
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                            <p class="font-semibold">❌ ไม่ถูกต้อง</p>
-                            <p>คำตอบของคุณ: ${userAnswer}</p>
-                            <p>คำตอบที่ถูกต้อง: ${currentQuestion.answer}</p>
-                        </div>
-                    `;
+            try {
+                if (window.dataSdk && window.dataSdk.create) {
+                    await window.dataSdk.create({
+                        id: currentQuestion.id,
+                        shape: currentQuestion.shape,
+                        question_type: currentQuestion.questionType,
+                        user_answer: userAnswer,
+                        correct_answer: currentQuestion.answer,
+                        is_correct: isCorrect,
+                        timestamp: new Date().toISOString()
+                    });
                 }
-                
-                updateStats();
-            } else {
-                resultMessage.innerHTML = '<p class="text-red-500">เกิดข้อผิดพลาดในการบันทึกคำตอบ</p>';
+            } catch (error) {
+                console.log('Data SDK save failed:', error);
             }
             
-            // Reset button
+            if (isCorrect) {
+                resultMessage.innerHTML = `
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                        <p class="font-semibold">🎉 ถูกต้อง!</p>
+                        <p>คำตอบที่ถูกต้อง: ${currentQuestion.answer}</p>
+                    </div>
+                `;
+            } else {
+                resultMessage.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                        <p class="font-semibold">❌ ไม่ถูกต้อง</p>
+                        <p>คำตอบของคุณ: ${userAnswer}</p>
+                        <p>คำตอบที่ถูกต้อง: ${currentQuestion.answer}</p>
+                    </div>
+                `;
+            }
+            
+            updateStats();
+            
+            submitBtn.disabled = false;
             submitBtn.classList.remove('loading');
             submitBtn.textContent = window.elementSdk?.config?.submit_answer_text || defaultConfig.submit_answer_text;
         }
@@ -355,19 +353,16 @@
 
         // Element SDK configuration
         async function onConfigChange(config) {
-            // Update title
             const titleElement = document.getElementById('game-title');
             if (titleElement) {
                 titleElement.textContent = config.game_title || defaultConfig.game_title;
             }
             
-            // Update instruction
             const instructionElement = document.getElementById('instruction');
             if (instructionElement) {
                 instructionElement.textContent = config.instruction_text || defaultConfig.instruction_text;
             }
             
-            // Update button text
             const newQuestionBtn = document.getElementById('new-question-btn');
             if (newQuestionBtn) {
                 newQuestionBtn.textContent = config.new_question_text || defaultConfig.new_question_text;
@@ -378,7 +373,6 @@
                 submitBtn.textContent = config.submit_answer_text || defaultConfig.submit_answer_text;
             }
             
-            // Update colors
             document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color}, #ddd6fe)`;
             
             const surfaceElements = document.querySelectorAll('.bg-white, input');
@@ -458,13 +452,11 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
-            // Initialize Data SDK
             const dataResult = await window.dataSdk.init(dataHandler);
             if (!dataResult.isOk) {
                 console.error('Failed to initialize data SDK');
             }
             
-            // Initialize Element SDK
             if (window.elementSdk) {
                 await window.elementSdk.init({
                     defaultConfig,
@@ -474,26 +466,30 @@
                 });
             }
             
-            // Start first question
             displayQuestion();
             updateStats();
         });
     </script>
-  <main class="container mx-auto px-4 py-8 max-w-4xl">
-   <header class="text-center mb-8">
-    <h1 id="game-title" class="text-4xl font-bold mb-4" style="color: #1f2937">เกมคณิตศาสตร์ 3D</h1>
-    <p id="instruction" class="text-lg text-gray-600 mb-6">คำนวณพื้นที่ผิวและปริมาตรของรูปทรงต่างๆ</p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6"><button id="new-question-btn" onclick="newQuestion()" class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200" style="background-color: #6366f1"> โจทย์ใหม่ </button>
-     <div id="stats"></div>
-    </div>
-   </header>
-   <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-    <div id="question-container"><!-- Question will be loaded here -->
-    </div>
-   </div>
-   <div class="text-center text-sm text-gray-500">
-    <p>💡 เคล็ดลับ: ใช้ π ≈ 3.14159 ในการคำนวณ</p>
-   </div>
-  </main>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9994777aa62a26c1',t:'MTc2MjI2MzAzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 id="game-title" class="text-4xl font-bold mb-4" style="color: #1f2937">เกมคณิตศาสตร์ 3D</h1>
+            <p id="instruction" class="text-lg text-gray-600 mb-6">คำนวณพื้นที่ผิวและปริมาตรของรูปทรงต่างๆ</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+                <button id="new-question-btn" onclick="newQuestion()" class="px-6 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200" style="background-color: #6366f1">
+                    โจทย์ใหม่
+                </button>
+                <div id="stats"></div>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div id="question-container"></div>
+        </div>
+
+        <div class="text-center text-sm text-gray-500">
+            <p>💡 เคล็ดลับ: ใช้ π ≈ 3.14159 ในการคำนวณ</p>
+        </div>
+    </main>
+</body>
 </html>
